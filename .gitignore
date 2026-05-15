@@ -1,0 +1,19 @@
+## Carpetas de compilación
+bin/
+obj/
+
+## Visual Studio
+.vs/
+*.sln.iml
+
+## Archivos ejecutables
+*.exe
+*.dll
+*.pdb
+
+## Archivos de configuración local
+.env
+*.user
+
+## CSV de datos
+carros.csv
