@@ -6,10 +6,10 @@ namespace ConcesionarioAPI.Servicios;
 // ISP: interfaz con solo los métodos que necesita el controlador
 public interface ICarroServicio
 {
-    List<Carro> ObtenerTodos();
-    List<Carro> ObtenerDisponibles();
-    List<Carro> BuscarPorMarca(string marca);
-    List<Carro> FiltrarPorPrecioMaximo(decimal precioMax);
+    IEnumerable<Carro> ObtenerTodos();
+    IEnumerable<Carro> ObtenerDisponibles();
+    IEnumerable<Carro> BuscarPorMarca(string marca);
+    IEnumerable<Carro> FiltrarPorPrecioMaximo(decimal precioMax);
     Carro? ObtenerPorId(int id);
     Carro Crear(CrearCarroDto dto);
     Carro? Actualizar(int id, ActualizarCarroDto dto);
@@ -31,31 +31,27 @@ public class CarroServicio : ICarroServicio
         _repositorio = repositorio;
     }
 
-    // LINQ: devuelve todos ordenados por precio
-    public List<Carro> ObtenerTodos() =>
+    // LINQ: devuelve todos ordenados por precio (lazy evaluation)
+    public IEnumerable<Carro> ObtenerTodos() =>
         _repositorio.ObtenerTodos()
-                    .OrderBy(c => c.Precio)
-                    .ToList();
+                    .OrderBy(c => c.Precio);
 
-    // LINQ: filtra solo los disponibles
-    public List<Carro> ObtenerDisponibles() =>
+    // LINQ: filtra solo los disponibles (lazy evaluation)
+    public IEnumerable<Carro> ObtenerDisponibles() =>
         _repositorio.ObtenerTodos()
                     .Where(c => c.Estado == "Disponible")
-                    .OrderBy(c => c.Precio)
-                    .ToList();
+                    .OrderBy(c => c.Precio);
 
-    // LINQ: búsqueda parcial por marca sin importar mayúsculas
-    public List<Carro> BuscarPorMarca(string marca) =>
+    // LINQ: búsqueda parcial por marca sin importar mayúsculas (lazy evaluation)
+    public IEnumerable<Carro> BuscarPorMarca(string marca) =>
         _repositorio.ObtenerTodos()
-                    .Where(c => c.Marca.Contains(marca, StringComparison.OrdinalIgnoreCase))
-                    .ToList();
+                    .Where(c => c.Marca.Contains(marca, StringComparison.OrdinalIgnoreCase));
 
-    // LINQ: filtra por precio máximo
-    public List<Carro> FiltrarPorPrecioMaximo(decimal precioMax) =>
+    // LINQ: filtra por precio máximo (lazy evaluation)
+    public IEnumerable<Carro> FiltrarPorPrecioMaximo(decimal precioMax) =>
         _repositorio.ObtenerTodos()
                     .Where(c => c.Precio <= precioMax)
-                    .OrderBy(c => c.Precio)
-                    .ToList();
+                    .OrderBy(c => c.Precio);
 
     public Carro? ObtenerPorId(int id) => _repositorio.ObtenerPorId(id);
 

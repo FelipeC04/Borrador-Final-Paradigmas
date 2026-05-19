@@ -18,7 +18,7 @@ public class CarrosController : ControllerBase
 
     // GET api/carros
     [HttpGet]
-    public ActionResult<List<Carro>> ObtenerTodos()
+    public IActionResult ObtenerTodos()
     {
         var carros = _servicio.ObtenerTodos();
         return Ok(carros);
@@ -35,21 +35,21 @@ public class CarrosController : ControllerBase
 
     // GET api/carros/disponibles
     [HttpGet("disponibles")]
-    public ActionResult<List<Carro>> ObtenerDisponibles()
+    public IActionResult ObtenerDisponibles()
     {
         return Ok(_servicio.ObtenerDisponibles());
     }
 
     // GET api/carros/buscar?marca=Toyota
     [HttpGet("buscar")]
-    public ActionResult<List<Carro>> BuscarPorMarca([FromQuery] string marca)
+    public IActionResult BuscarPorMarca([FromQuery] string marca)
     {
         return Ok(_servicio.BuscarPorMarca(marca));
     }
 
     // GET api/carros/precio?max=25000
     [HttpGet("precio")]
-    public ActionResult<List<Carro>> FiltrarPorPrecio([FromQuery] decimal max)
+    public IActionResult FiltrarPorPrecio([FromQuery] decimal max)
     {
         return Ok(_servicio.FiltrarPorPrecioMaximo(max));
     }

@@ -14,18 +14,23 @@ builder.Services.AddSwaggerGen();
 // ── Inyección de dependencias ────────────────────────────────
 builder.Services.AddSingleton<ICarroRepository, CarroCsvRepository>();
 
-// AOP con Castle: en vez de registrar CarroServicio directamente,
-// lo envolvemos en un proxy que intercepta cada llamada con LoggingInterceptor
+// AOP con Castle: instanciar ProxyGenerator y LoggingInterceptor una sola vez
+builder.Services.AddSingleton<ProxyGenerator>();
+builder.Services.AddSingleton<LoggingInterceptor>();
+
+// Registrar CarroServicio con proxy
 builder.Services.AddScoped<ICarroServicio>(provider =>
 {
     var repositorio  = provider.GetRequiredService<ICarroRepository>();
+    var generator    = provider.GetRequiredService<ProxyGenerator>();
+    var interceptor  = provider.GetRequiredService<LoggingInterceptor>();
     var servicioReal = new CarroServicio(repositorio);
-    var generator    = new ProxyGenerator();
-    var interceptor  = new LoggingInterceptor();
 
-    // Castle crea un proxy que "rodea" el servicio real
     return generator.CreateInterfaceProxyWithTarget<ICarroServicio>(servicioReal, interceptor);
 });
+
+// Registrar el listener de eventos
+builder.Services.AddScoped<EventoCarroListener>();
 
 var app = builder.Build();
 
@@ -40,16 +45,5 @@ app.UseMiddleware<LoggingMiddleware>();
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
-
-// ORIENTADO A EVENTOS: suscribirse al evento CarroCreado
-using (var scope = app.Services.CreateScope())
-{
-    var servicio = scope.ServiceProvider.GetRequiredService<ICarroServicio>() as CarroServicio;
-    if (servicio != null)
-    {
-        servicio.CarroCreado += (sender, carro) =>
-            Console.WriteLine($"[EVENTO] Carro creado: {carro.Marca} {carro.Modelo} - Id {carro.Id}");
-    }
-}
 
 app.Run();
